@@ -4,7 +4,7 @@ from flaskext.mysql import MySQL
 from dotenv import load_dotenv
 import os
 from sendMail import *
-
+from datetime import datetime
 
 load_dotenv()
 
@@ -22,6 +22,23 @@ app.config['MYSQL_DATABASE_HOST'] =os.getenv('MYSQL_DATABASE_HOST')
 app.config['MYSQL_DATABASE_PORT'] = int(os.getenv('MYSQL_DATABASE_PORT'))
 
 mysql.init_app(app)
+
+month = datetime.now().month
+# print(month)
+
+months = {	'01':'January',
+		'02':'February',
+		'03':'March',
+		'04':'April',
+		'05':'May',
+		'06':'June',
+		'07':'July',
+		'08':'August',
+		'09':'September',
+		'10':'October',
+		'11':'November',
+		'12':'December'		}
+
 
 # utility functions
 def updateCategory(cat,user_id,amount):
@@ -104,8 +121,24 @@ def updateIncomeOnCatDel(user_id,id):
     con.commit()
     return
 
+def getMonthlyCatExp(user_id,cat_id,month=datetime.now().month):
+    con = mysql.connect()
+    cur = con.cursor()
+    user_id= str(user_id) 
+    cat_id= str(cat_id) 
+    month = str(month)
+    Debit = 'Debit'
+    cur.execute("SELECT * FROM `expense` WHERE `user_id`='"+user_id+"' AND `category_id`='"+cat_id+"' AND `type`='"+Debit+"' AND MONTH(`date`) ='"+month+"'   ORDER BY `date` ")
+    data = cur.fetchall()
+    limit = [row[4] for row in data]
+    maxMonthlyLimit = sum(limit)
+    return maxMonthlyLimit
+
+
+
 
 def checkMaxLimit(user_id,id):
+    global month
     con = mysql.connect()
     cur = con.cursor()
     username = session.get("username")
@@ -115,18 +148,27 @@ def checkMaxLimit(user_id,id):
     cur.execute("SELECT * FROM `category` WHERE `user_id`='"+user_id+"' AND `id` ='"+id+"'")
     data = cur.fetchall()
     limit = int(data[0][3])
-    spent = int(data[0][4])
+    spent = getMonthlyCatExp(user_id,id,month)
     name = data[0][2]
     msg = ''
     if spent >= limit:
-        msg = 'You have exceeded the max expenditure limit on category ' + name +'\nLimit: '+str(limit) +'\nSpent: '+str(spent)
+        msg = 'You have exceeded the max expenditure limit on category ' + name + ' for this month  '+'\nLimit: '+str(limit) +'\nSpent: '+str(spent)
         sendMail(user_mail,msg)
-    elif limit - spent <=1000:
-        msg = 'You are reaching your max  expenditurelimit on category'+ name+'\nLimit: '+str(limit) +'\nSpent: '+str(spent)
+    elif limit - spent <=100:
+        msg = 'You are reaching your max  expenditurelimit on category'+ name+ ' for this month  '+'\nLimit: '+str(limit) +'\nSpent: '+str(spent)
         sendMail(user_mail,msg)
     return 
 
 
+def getTotalMonthlyExp(user_id,month=datetime.now().month):
+    con = mysql.connect()
+    cur = con.cursor()
+    month = str(month)
+    user_id = str(user_id)
+    cur.execute("SELECT * FROM category WHERE `user_id`='"+user_id+"'")
+    cats = cur.fetchall()
+    spent = [getMonthlyCatExp(user_id,i[0],month) for i in cats]
+    return sum(spent)
 
 
 
@@ -210,6 +252,10 @@ def dashboard():
         flash(u'Login To continue', 'info')
         return render_template("errorpage.html")
     else:
+        global month
+        if(request.args.get('month')):
+            month = request.args.get('month')
+        month = str(month)
         con = mysql.connect()
         cur = con.cursor()
 
@@ -220,21 +266,28 @@ def dashboard():
 
         cur.execute("SELECT * FROM `category` WHERE `user_id`='"+user_id+"' ")
         cats = cur.fetchall()
-        cat ={cats[i][2]: cats[i][4] for i in range(len(cats))}
+        spent = [getMonthlyCatExp(user_id,i[0],month) for i in cats]
+
+        c= list()
+        for i in range(len(cats)):
+            a = list(cats[i])
+            a[4] = spent[i]
+            c.append(a)
+            
+        cat ={cats[i][2]: spent[i] for i in range(len(cats))}
         title = {'Task':'My Expenditure'}
         ct = {**title, **cat}
 
         Debit = 'Debit'
-        cur.execute("SELECT * FROM `expense` WHERE `user_id`='"+user_id+"' AND `type`='"+Debit+"' ORDER BY `date` ")
+        cur.execute("SELECT * FROM `expense` WHERE `user_id`='"+user_id+"' AND `type`='"+Debit+"' AND MONTH(`date`) ='"+month+"'   ORDER BY `date` ")
         line = cur.fetchall()
         labels = [row[6].strftime("%d-%m-%y") for row in line]
         values = [row[4] for row in line]
         
-        cur.execute("SELECT * FROM `expense` WHERE `user_id`='"+user_id+"' AND `type`='"+Debit+"'")
-        bar = cur.fetchall()
+        
         labelsBar=[]
         valuesBar =[]
-        for row in bar:
+        for row in line:
             if row[5] in labelsBar:
                 valuesBar[labelsBar.index(row[5])] += row[4]
             else:
@@ -243,7 +296,7 @@ def dashboard():
 
         totalIncome = {'Task':'Income vs Expenditure','income':income[2],'expenditure':income[3] }
 
-        return render_template('dashboard.html', user=user, category=cats,income=income,data=ct,labels=labels,values=values,labelsBar=labelsBar,valuesBar=valuesBar,totalIncome=totalIncome)
+        return render_template('dashboard.html',months=months, user=user, category=c,income=income,data=ct,labels=labels,values=values,labelsBar=labelsBar,valuesBar=valuesBar,totalIncome=totalIncome)
 
 
 @app.route("/addExpense", methods=['GET', 'POST'])
@@ -353,12 +406,14 @@ def myExpenses():
         flash(u'Login To continue', 'info')
         return render_template("errorpage.html")
     else:
+        global month
+        month = str(month)
         user_id = getUserId()
         user = session.get("username")
         con = mysql.connect()
         cur = con.cursor()
         con = mysql.connect()
-        cur.execute("SELECT * FROM expense WHERE `user_id`='"+user_id+"' ORDER BY `date`")
+        cur.execute("SELECT * FROM expense WHERE `user_id`='"+user_id+"' AND MONTH(`date`) ='"+month+"' ORDER BY   `date` DESC")
         data = cur.fetchall()
         cur.execute("SELECT * FROM category WHERE `user_id`='"+user_id+"'")
         cats = cur.fetchall()
@@ -500,8 +555,9 @@ def wallet():
         user_id = getUserId()
         income = getIncome(user_id)
         user = session.get("username")
+        exp = getTotalMonthlyExp(str(user_id),month=datetime.now().month)
 
-        return render_template('wallet.html',user=user,income=income)
+        return render_template('wallet.html',user=user,income=income,exp = exp)
 
 
 if __name__ == "__main__":
