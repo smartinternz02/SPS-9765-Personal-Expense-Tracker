@@ -1,0 +1,58 @@
+{%extends "base.html" %} {%block content%}
+<body>
+    <div class="container">
+        <div class="col-6">
+            {% with messages = get_flashed_messages(with_categories=true) %} {%
+            if messages %} {% for category, message in messages %}
+            <div class="mt-5 alert alert-{{ category }}" role="alert">
+                {{ message }}
+            </div>
+            {% endfor %} {% endif %} {% endwith %}
+        </div>
+        <div class="row"></div>
+        <div class="row p-5 mt-5">
+            <center>
+                <table class="table">
+                    <thead class="thead-dark">
+                        <tr>
+                            <th scope="col"></th>
+                            <th scope="col">Category</th>
+                            <th scope="col">Name</th>
+                            <th scope="col">Amount</th>
+                            <th scope="col">Date</th>
+                            <th scope="col">Mode of Payment</th>
+                            <th scope="col">Type</th>
+                            <th scope="col">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for exp in expense %}
+                        <tr>
+                            <th scope="row"></th>
+                            <td>{{cat[exp[2]]}}</td>
+                            <td>{{exp[3]}}</td>
+                            <td>{{exp[4]}}</td>
+                            <td>{{exp[6]}}</td>
+                            <td>{{exp[5]}}</td>
+                            <td>{{exp[7]}}</td>
+                            <td>
+                                <a
+                                    href="{{url_for('editExpense',id=exp[0])}}"
+                                    class="btn btn-warning mr-2"
+                                    >Edit</a
+                                ><a
+                                    href="{{url_for('deleteExpense',id=exp[0])}}"
+                                    class="btn btn-danger"
+                                >
+                                    Delete</a
+                                >
+                            </td>
+                        </tr>
+                        {%endfor%}
+                    </tbody>
+                </table>
+            </center>
+        </div>
+    </div>
+</body>
+{% endblock %}

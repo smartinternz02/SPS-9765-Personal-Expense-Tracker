@@ -1,0 +1,54 @@
+{%extends "base.html" %} {%block content%}
+
+<div class="row bg-light m-2 p-4">
+    <div class="col-12 text-center">
+        <h1>Welcome To The Personal Expense Tracker App</h1>
+        <br />
+    </div>
+    <div class="col-1"></div>
+    <div class="col-4">
+        <img
+            src="{{ url_for('static', filename='img/cash.png') }}"
+            alt="cash"
+        />
+    </div>
+    <div class="col-6 text-center p-3 mt-2">
+        <h3>Track Your Spendings With our Expense Tracker</h3>
+    </div>
+</div>
+<div class="row row-eq-height m-2">
+    <div class="col m-1 p-3 text-center" style="background-color: #92a8d1">
+        <h4>Get a quick overview</h4>
+        <p>
+            about your total incomes and expenses at a glance and in one place.
+        </p>
+    </div>
+    <div
+        class="col panel m-1 p-3 text-center"
+        style="background-color: #88b04b"
+    >
+        <h4>Have perfect control</h4>
+        <p>
+            over all your cash expenses,bank accounts and mobile transactions.
+        </p>
+    </div>
+    <div
+        class="col panel m-1 p-3 text-center"
+        style="background-color: #efc050"
+    >
+        <h4>Track your cash flow</h4>
+        <p>
+            add your cash expenses,card transaction and mobile transaction for
+            complete overview of your cashflow.
+        </p>
+    </div>
+    <div
+        class="col panel m-1 p-3 text-center"
+        style="background-color: #c3447a"
+    >
+        <h4>Understand your financial habits</h4>
+        <p>See where your money goes and comes from.</p>
+    </div>
+</div>
+
+{% endblock %}

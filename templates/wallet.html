@@ -1,0 +1,17 @@
+{%extends "base.html" %} {%block content%}
+
+<div class="container m-5">
+    <h1 class="text-capitalize text-center">Welcome to wallet!</h1>
+
+    <div class="wallet mt-2">
+        <h4>My Balance: &#8377;{{income[2] - income[3]}}</h4>
+    </div>
+
+    <div class="balance mt-2">
+        <pre><h4>
+            My Income : &#8377;{{income[2]}}
+            Expenditure: {{income[3]}}</h4></pre>
+    </div>
+</div>
+
+{% endblock %}

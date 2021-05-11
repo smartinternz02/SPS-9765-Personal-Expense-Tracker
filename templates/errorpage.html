@@ -1,0 +1,32 @@
+<link
+    href="{{ url_for('static', filename='css/error.css') }}"
+    rel="stylesheet"
+/>
+<script>
+    window.setTimeout(function () {
+        // Move to a new location or you can do something else
+        window.location.href = "{{ url_for('home') }}";
+    }, 15000);
+</script>
+
+<div class="face">
+    <div class="band">
+        <div class="red"></div>
+        <div class="white"></div>
+        <div class="blue"></div>
+    </div>
+    <div class="eyes"></div>
+    <div class="dimples"></div>
+    <div class="mouth"></div>
+</div>
+<div class="col text-center">
+    {% with messages = get_flashed_messages(with_categories=true) %} {% if
+    messages %} {% for category, message in messages %}
+    <div class="mt-1 alert alert-{{ category }}" role="alert">
+        <h1>{{ message }}</h1>
+    </div>
+    {% endfor %} {% endif %} {% endwith %}
+</div>
+<div class="btn">
+    <a href="{{ url_for('home') }}">Return to Home</a>
+</div>

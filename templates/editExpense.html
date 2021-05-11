@@ -1,0 +1,85 @@
+{%extends "base.html" %} {%block content%}
+<div class="row mb-5"></div>
+<div class="container h-100 d-flex justify-content-center mb-5">
+    <div class="jumbotron my-auto border border-warning w-50">
+        <h2>Edit Expense Details Here</h2>
+        <form action="#" method="POST" class="center">
+            <input type="text" name="id" value="{{expense[0]}}" hidden />
+            <br />
+            <br />
+            <label> Select category of expenditure</label>
+            <br />
+            <select name="cat" id="cat" required class="form-control">
+                <option disabled selected value="">select category</option>
+                {% for cat in category %}
+                <option value="{{cat[0]}}">{{cat[2]}}</option>
+                {%endfor%}
+            </select>
+            <br />
+            <br />
+            <label>Expense Name</label>
+            <br />
+            <input
+                type="text"
+                placeholder="Enter expense"
+                name="name"
+                required
+                value="{{expense[3]}}"
+                class="form-control"
+            />
+            <br />
+            <br />
+            <label>Amount</label>
+            <br />
+            <input
+                type="number"
+                placeholder="Enter amount"
+                name="amount"
+                required
+                value="{{expense[4]}}"
+                class="form-control"
+            />
+            <br />
+            <br />
+            <label>Date</label>
+            <br />
+            <input
+                type="date"
+                placeholder="Enter Date"
+                name="date"
+                value="{{expense[6]}}"
+                required
+                class="form-control"
+            />
+            <br />
+            <br />
+            <label> Select mode of expenditure</label>
+            <br />
+            <select name="mode" id="mode" required class="form-control">
+                <option disabled selected value="">select mode</option>
+                <option value="Cash">Cash</option>
+                <option value="Card">Card</option>
+                <option value="Cheque">Cheque</option>
+                <option value="Mobile Payment">Mobile Payment</option>
+            </select>
+            <br />
+            <br />
+            <label>Select type of expenditure</label>
+            <br />
+            <select name="type" id="type" required class="form-control">
+                <option disabled selected value="">select type</option>
+                <option value="Credit">Credit</option>
+                <option value="Debit">Debit</option>
+            </select>
+            <br />
+            <br />
+            <input
+                type="submit"
+                value="Save"
+                class="btn btn-info form-control"
+            />
+        </form>
+    </div>
+</div>
+
+{% endblock %}

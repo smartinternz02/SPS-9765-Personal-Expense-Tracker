@@ -1,0 +1,246 @@
+{%extends "base.html" %} {%block content%}
+<script
+    type="text/javascript"
+    src="https://www.gstatic.com/charts/loader.js"
+></script>
+<script
+    src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.2.0/chart.min.js"
+    integrity="sha512-VMsZqo0ar06BMtg0tPsdgRADvl0kDHpTbugCBBrL55KmucH6hP9zWdLIWY//OTfMnzz6xWQRxQqsUFefwHuHyg=="
+    crossorigin="anonymous"
+></script>
+<script type="text/javascript">
+        google.charts.load("current", { packages: ["corechart"] });
+        google.charts.setOnLoadCallback(drawChart);
+
+        function drawChart() {
+            var data = google.visualization.arrayToDataTable([
+            {%if totalIncome%}
+                {% for key, value in data.items() %}
+                    {% if value is string %}
+                        ['{{ key }}', '{{ value }}'],
+                    {% else %}
+                        ['{{ key }}', {{ value }}],
+                    {% endif %}
+                {% endfor %}
+            {%endif%}
+    ]);
+    var options = {
+      title: 'Expenditure based on categories',
+      backgroundColor:'#FFF5EE',
+      pieStartAngle: 100
+    };
+
+
+            var chart = new google.visualization.PieChart(
+                document.getElementById("piechart")
+            );
+
+            chart.draw(data, options);
+        }
+</script>
+<!-- for income vs expenditure -->
+<script type="text/javascript">
+        google.charts.load("current", { packages: ["corechart"] });
+        google.charts.setOnLoadCallback(drawChart);
+
+        function drawChart() {
+            var data = google.visualization.arrayToDataTable([
+                {%if totalIncome%}
+                    {% for key, value in totalIncome.items() %}
+                        {% if value is string %}
+                            ['{{ key }}', '{{ value }}'],
+                        {% else %}
+                            ['{{ key }}', {{ value }}],
+                        {% endif %}
+                    {% endfor %}
+                {%endif%}
+    ]);
+    var options = {
+      title: 'Income vs Expenditure',
+      backgroundColor:'#FFF5EE',
+      pieStartAngle: 100
+
+    };
+
+
+            var chart = new google.visualization.PieChart(
+                document.getElementById("piechart2")
+            );
+
+            chart.draw(data, options);
+        }
+</script>
+<div class="row mb-5"></div>
+<div class="container pt-50 mb-5">
+    <div class="p-10 row">
+        <div class="col-8">
+            <h1 class="text-capitalize">Welcome user: {{user}}</h1>
+        </div>
+        <div class="col-4">
+            <h2>Your Income:{{income[2]}}</h2>
+
+            <a
+                href="{{url_for('editIncome',id=income[0])}}"
+                class="btn btn-primary text-white"
+                >Change Income</a
+            >
+        </div>
+    </div>
+    <div class="col-6">
+        {% with messages = get_flashed_messages(with_categories=true) %} {% if
+        messages %} {% for category, message in messages %}
+        <div class="mt-5 alert alert-{{ category }}" role="alert">
+            {{ message }}
+        </div>
+        {% endfor %} {% endif %} {% endwith %}
+    </div>
+</div>
+<h1 class="m-2 text-center">Analyze Your Expenditure Here</h1>
+{% if labels %}
+<div class="row m-1" style="background-color: #fff5ee">
+    <div
+        id="piechart"
+        style="width: 800px; height: 800px"
+        class="col-5 m-1"
+    ></div>
+    <div class="col-6 m-1">
+        <canvas id="linechart" width="700" height="600">
+            <script>
+                var ctx = document.getElementById('linechart').getContext('2d');
+                var lineChart = new Chart(ctx, {
+                    type:"line",
+                    data:{
+                        labels:{{labels | safe }},
+                        datasets:[
+                            {
+                                label:"Daily Expenditure",
+                                data:{{values | safe}},
+                                fill:true,
+                                borderColor:"black",
+                                lineTension:0.1
+                            }
+                        ]
+                    },
+                    options:{
+                        responsive:false
+                    }
+                })
+            </script>
+        </canvas>
+    </div>
+    <div
+        id="piechart2"
+        style="width: 800px; height: 800px"
+        class="col-5 m-1"
+    ></div>
+    <div class="col-6 m-1">
+        <canvas id="barchart" width="700" height="600">
+            <script>
+                var ctx = document.getElementById('barchart').getContext('2d');
+                var barchart = new Chart(ctx, {
+                                type:"bar",
+                                data:{
+                                    labels:{{labelsBar | safe }},
+                                    datasets:[{barPercentage: 0.5,
+                                            label:"Expenditure based on Mode of Payment",
+                                            data:{{valuesBar | safe}},
+                                            fill:true,
+                                            borderColor:"rgb(75,192,192)",
+                                            backgroundColor: [
+                                                        'rgba(255, 99, 132, 0.2)',
+                                                        'rgba(255, 159, 64, 0.2)',
+                                                        'rgba(255, 205, 86, 0.2)',
+                                                        'rgba(75, 192, 192, 0.2)',
+                                                        'rgba(54, 162, 235, 0.2)',
+                                                        'rgba(153, 102, 255, 0.2)',
+                                                        'rgba(201, 203, 207, 0.2)'
+                                                        ],
+                                            borderColor: [
+                                                        'rgb(255, 99, 132)',
+                                                        'rgb(255, 159, 64)',
+                                                        'rgb(255, 205, 86)',
+                                                        'rgb(75, 192, 192)',
+                                                        'rgb(54, 162, 235)',
+                                                        'rgb(153, 102, 255)',
+                                                        'rgb(201, 203, 207)'
+                                                        ],
+                                            borderWidth: 1,
+                                            maxBarThickness: 10,
+                                                    }
+                                                ]
+                                            },
+                                            options:{
+                                                scales: {
+                              y: {
+                                beginAtZero: true
+                              },
+                        responsive:false
+                            }
+                                            }
+                                        })
+            </script>
+        </canvas>
+    </div>
+</div>
+{%else%}
+<p class="m-2 text-center">You haven't added any data</p>
+{%endif%}
+<div class="row mt-5">
+    <div class="col-2"></div>
+    <div class="col-8">
+        <center>
+            <h2>Categories of expenditure</h2>
+            <table class="table">
+                {% if not category %}
+                <p>You haven't added any categories yet</p>
+
+                {% else %}
+
+                <thead class="thead-dark">
+                    <tr>
+                        <th scope="col">Category Name</th>
+                        <th scope="col">Expenditure Limit</th>
+                        <th scope="col">Spent</th>
+                        <th scope="col">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for c in category %}
+                    <tr>
+                        <td>{{c[2]}}</td>
+                        <td>{{c[3]}}</td>
+                        <td>{{c[4]}}</td>
+                        <td>
+                            <a
+                                href="{{url_for('editCategory',id=c[0])}}"
+                                class="btn btn-warning mr-3 text-dark"
+                                >Edit</a
+                            ><a
+                                href="{{url_for('deleteCategory',id=c[0])}}"
+                                class="btn btn-danger text-dark"
+                                >Delete</a
+                            >
+                        </td>
+                    </tr>
+                    {%endfor%}
+                </tbody>
+                {% endif %}
+            </table>
+        </center>
+    </div>
+
+    <div class="col-2"></div>
+</div>
+<div class="row m-5 text-center">
+    <div class="col-4 mb-3"></div>
+    <div class="col-4 mb-3">
+        <a
+            href="{{url_for('addCategory',id=user[0])}}"
+            class="btn btn-primary text-white"
+            >Add new category</a
+        >
+    </div>
+    <div class="col-4 mb-3"></div>
+</div>
+
+{% endblock %}

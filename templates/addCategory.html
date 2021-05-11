@@ -1,0 +1,40 @@
+{%extends "base.html" %} {%block content%}
+<div class="row"></div>
+<div class="container h-100 d-flex justify-content-center mb-5">
+    <div class="jumbotron my-auto border border-warning w-50">
+        <h2>Add A New Category Here</h2>
+        <form action="#" method="post">
+            <input type="text" name="user_id" value="{{user_id}}" hidden />
+            <br />
+            <label>Expense Category Name</label>
+            <br />
+            <input
+                type="text"
+                placeholder="Enter category"
+                name="name"
+                required
+                class="form-control"
+            />
+            <br />
+            <br />
+            <label>Expected Expenditure Limit</label>
+            <br />
+            <input
+                type="number"
+                placeholder="Enter amount"
+                name="amount"
+                required
+                class="form-control"
+            />
+            <br />
+            <br />
+            <input
+                type="submit"
+                value="Add Category"
+                class="btn btn-info form-control"
+            />
+        </form>
+    </div>
+</div>
+
+{% endblock %}
