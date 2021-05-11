@@ -196,3 +196,7 @@ nav li:hover {
     color: white;
     font-family: sans-serif;
 }
+
+.col .button {
+    background-color: #b565a7 !important;
+}

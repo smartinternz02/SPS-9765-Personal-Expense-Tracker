@@ -70,6 +70,7 @@
             chart.draw(data, options);
         }
 </script>
+
 <div class="row mb-5"></div>
 <div class="container pt-50 mb-5">
     <div class="p-10 row">
@@ -95,7 +96,22 @@
         {% endfor %} {% endif %} {% endwith %}
     </div>
 </div>
+<h3 class="m-2 text-center">Select Month Here</h3>
+<br />
+<div class="row ml-5 justify-content-center">
+    <div class="col">
+        {% for key, value in months.items() %}
+        <a
+            href="{{url_for('dashboard',month=key)}}"
+            class="btn button mr-3 text-white"
+            >{{value}}</a
+        >
+        {% endfor %}
+    </div>
+</div>
+<br /><br />
 <h1 class="m-2 text-center">Analyze Your Expenditure Here</h1>
+<br /><br />
 {% if labels %}
 <div class="row m-1" style="background-color: #fff5ee">
     <div
@@ -199,7 +215,7 @@
                 <thead class="thead-dark">
                     <tr>
                         <th scope="col">Category Name</th>
-                        <th scope="col">Expenditure Limit</th>
+                        <th scope="col">Monthly Expenditure Limit</th>
                         <th scope="col">Spent</th>
                         <th scope="col">Actions</th>
                     </tr>
